@@ -31,7 +31,13 @@ classifiers = [
 ]
 dependencies = [
     "humanize",
-    "speasy>=1.6.0",
+    # The AMDA_Kernel chain needs the forks, not the PyPI releases:
+    #   speasy: master file applied at decode time, local archives with gaps, .gz archives
+    #   pyistp: netCDF3 routed to the right driver, DDBASE time formats decoded from the master
+    # Branches on purpose -- this is a moving integration. Pin to a tag or a commit before
+    # anything ships. See docs/amda-kernel.md.
+    "speasy @ git+https://github.com/erdoganfurkan/speasy.git@feat/direct-archive-master-file-and-gzip",
+    "pyistp @ git+https://github.com/erdoganfurkan/PyISTP.git@feat/ddbase-netcdf-master",
     "pycdfpp>=0.7.3",
     "diskcache",
     "jinja2",
@@ -61,6 +67,10 @@ dev = [
 
 [project.urls]
 homepage = "https://github.com/SciQLop/speasy_proxy"
+
+[tool.hatch.metadata]
+# Required by the git pins above; hatchling refuses direct references otherwise.
+allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["speasy_proxy"]
