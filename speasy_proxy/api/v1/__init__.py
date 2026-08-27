@@ -7,6 +7,7 @@ from . import (
     get_data,
     get_presets,
     get_inventory,
+    metadata,
     get_speasy_version,
     get_version,
     get_server_status,
