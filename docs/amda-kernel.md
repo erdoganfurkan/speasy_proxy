@@ -64,17 +64,23 @@ Point the kernel at the port this proxy listens on with `app.speasyproxy.url` in
 
 ### Startup time
 
-`import speasy` builds every enabled provider's inventory, and several fetch their
-catalogue over the network — measured at over two minutes with all of them on, about
-five seconds with `archive` alone. The proxy looks hung during that window while
-`astroquery` logs its TAP queries.
+The app builds every enabled provider's inventory during startup, before it serves
+anything, and several providers fetch their catalogue over the network. With `archive`
+alone the port answers immediately; with `cda` on it takes minutes — and if CDAWeb's
+catalogue host is slow or unreachable it does not just take longer, it **retries until it
+gives up**, so the port never opens at all (measured: 6 min 40 with no answer, urllib3
+retrying `spdf.gsfc.nasa.gov/pub/catalogs/all.xml`). `astroquery`'s TAP logs during that
+window make it look busy rather than stuck.
 
 ```
 SPEASY_CORE_DISABLED_PROVIDERS="amda,csa,ssc,uiowaephtool,cdpp3dview"
 ```
 
-`cda` is deliberately left enabled: the kernel has a single `app.speasyproxy.url`, so
-this instance also serves `cda/...` UIDs (`SPEASY_CDA_imf.xml`).
+Whether to keep `cda` is a real trade-off, not a detail. The kernel has a single
+`app.speasyproxy.url`, so this instance also serves the `cda/...` UIDs that parameters
+like `imf_speasy_cda.xml` ask for. Disable it and DDBASE works instantly but those
+parameters return nothing; enable it and startup depends on CDAWeb being reachable. For
+DDBASE work, disable it.
 
 ## Not here yet
 
